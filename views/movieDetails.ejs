@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("./partials/head.ejs") %>
+<body>
+    <main>
+        <div>
+            <section>
+                <% if(movie.poster_path){ %>
+                    <div>
+                        <img src="<%= baseImgURL %><%= movie.poster_path %>" alt="<%= movie.title %> Poster">
+                    </div>
+                <% }else{ %>
+                    <img src="/img/placeholder-media.svg" alt="Poster Unavalable">
+                <% } %>    
+                <h2><%= movie.title %></h2>
+                <h4><%= movie.tagline %></h4>
+                <p><%= movie.overview %></p>
+            </section>
+            <section>
+                <p><%= releaseDate %></p>
+                <p><%= movie.runtime %>min</p>
+                <ul class="trunc-list">
+                    <% genreList.new.forEach(genre => { %>
+                        <li><%= genre %></li>
+                    <% }) %>
+                    <% if(genreList.trunc){ %>
+                        ...<a href="#">Read More</a>
+                    <% } %>
+                </ul>
+                <ul class="full-list">
+                    <% genreList.original.forEach(genre => { %>
+                        <li><%= genre %></li>
+                    <% }) %>
+                </ul>
+                <p>Vote Average : <%= voteAvg %>/10 (<%= movie.vote_count %> votes)</p>                    
+                <p>Language(s):</p>
+                <ul class="trunc-list">
+                    <% langList.new.forEach(lang => { %>
+                        <li><%= lang %></li>
+                    <% }) %>
+                    <% if(langList.trunc){ %>
+                        ...<a href="#">Read More</a>
+                    <% } %>
+                </ul>
+                <ul class="full-list">
+                    <% langList.original.forEach(lang => { %>
+                        <li><%= lang %></li>
+                    <% }) %>
+                    <a href="#">Show Less</a>
+                </ul>
+                <p>Production Company(s):</p>
+                <ul class="trunc-list">
+                    <% prodList.new.forEach(prod => { %>
+                        <li><%= prod %></li>
+                    <% }) %>
+                    <% if(prodList.trunc){ %>
+                        ...<a href="#">Read More</a>
+                    <% } %>
+                </ul>
+                <ul class="full-list">
+                    <% prodList.original.forEach(prod => { %>
+                        <li><%= prod %></li>
+                    <% }) %>
+                    <a href="#">Show Less</a>
+                </ul>
+            </section>
+            <section>
+                <p>Director(s):</p>
+                <ul class="trunc-list">
+                    <% dirList.new.forEach(dir => { %>
+                        <li><%= dir %></li>
+                    <% }) %>
+                    <% if(dirList.trunc){ %>
+                        ...<a href="#">Read More</a>
+                    <% } %>
+                </ul>
+                <ul class="full-list">
+                    <% dirList.original.forEach(dir => { %>
+                        <li><%= dir %></li>
+                    <% }) %>
+                    <a href="#">Show Less</a>
+                </ul>
+                <p>Writer(s):</p>
+                <ul class="trunc-list">
+                    <% writerList.new.forEach(writer => { %>
+                        <li><%= writer %></li>
+                    <% }) %>
+                    <% if(writerList.trunc){ %>
+                        ...<a href="#">Read More</a>
+                    <% } %>
+                </ul>
+                <ul class="full-list">
+                    <% writerList.original.forEach(writer => { %>
+                        <li><%= writer %></li>
+                    <% }) %>
+                    <a href="#">Show Less</a>
+                </ul>
+                <div>
+                    <p>Cast:</p>
+                    <% mainCast.forEach(cast=>{ %>
+                        <div>
+                            <% if(cast.profile_path){ %>
+                                <div>
+                                    <img src="<%= baseImgURL %><%= cast.profile_path %>" alt="<%= cast.name %> Profile Poster">
+                                </div>
+                            <% }else{ %>
+                                <img src="/img/placeholder-person.svg" alt="Profile Picture Unavalable">
+                            <% } %>         
+                            <p><%= cast.name %> as <%= cast.character %></p>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+            <section>
+                <% if(trailerKey === null){ %>
+                    <img src="/img/placeholder-media.svg" alt="Trailer Unavalable">
+                <% }else{ %>
+                     <iframe width="560" height="315" src="<%= baseYoutubeURL %><%= trailerKey %>" title="<%= movie.title %> Trailer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <% } %>
+            </section>
+            <section>
+                <h3>Reviews:</h3>
+                <% if(review.length>0){ %>
+                    <% review.forEach(review =>{ %>
+                        <div>
+                            <div>
+                                <% if(review.avatar_path){ %>
+                                    <% if(review.avatar_path.startsWith("http:") || review.avatar_path.startsWith("https:")){ %>
+                                        <img src="<%= review.avatar_path %>" alt="Profile Picture">
+                                    <% }else{ %>
+                                        <img src="<%= baseImgURL %><%= review.avatar_path %>" alt="Profile Picture">
+                                    <% } %>
+                                <% }else{ %>
+                                    <img src="/img/placeholder-person.svg" alt="Profile Picture Unavailable">
+                                <% } %>
+                            </div>
+                            <p><%= review.author %></p>
+                            <p class="trunc-review"><%= review.truncatedContent.new %>
+                                <% if(review.truncatedContent.trunc){ %>
+                                    ... [ <a href="#">Read More</a> ]
+                                <% } %>
+                            </p>
+                            <p class="full-review" style="display: none;"><%= review.content %>
+                                <a href="#">Show Less</a>
+                            </p>
+                            <p><%= review.formattedCreatedDate %></p>
+                        </div>
+                    <% })}else{  %>
+                        <p>There are no reviews available for this movie. Be the first one to add!</p>
+                <% } %>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

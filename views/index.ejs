@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("./partials/head.ejs") %>
+<body>
+    <header>
+        <div>
+            <form class="search-form">
+                <label for="search" class="sr-only">Search for movies</label>
+                <input type="search" id="search" name="search" placeholder="Search any movie....">
+                <button aria-label="Search Button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                </button>
+            </form>
+            <div class="search-error-msg"></div>        
+        </div>
+    </header>
+    <main>
+        <!-- filter -->
+        <div>
+            
+        </div>
+        <div class="display-container">
+            <% movies.forEach((movie)=>{ %>
+            <a href="/movie/<%= movie.id %>">
+                <div>
+                    <% if(movie.poster_path){ %>
+                        <div>
+                            <img src="<%= baseImgURL %><%= movie.poster_path %>" alt="<%= movie.title %> Poster">
+                        </div>
+                    <% }else{ %>
+                        <img src="/img/placeholder-media.svg" alt="Poster Unavalable">
+                    <% } %>         
+                    <p><%= movie.title %></p>
+                    <p><%= movie.release_date.split("-")[0] %></p>
+                </div>
+            </a>
+            <% }) %>
+        </div> 
+        <template id="dynamic-movie-template">
+            <a href="">
+                <div>
+                    <div>
+                        <img src="/img/placeholder-media.svg" alt="Poster Unavalable">
+                    </div>
+                    <p class="movie-title"></p>
+                    <p class="movie-date"></p>
+                </div>
+            </a>
+        </template>
+    </main>  
+    <!-- axios cdn -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script> 
+    <script src="/js/search.js"></script>
+</body>
+</html>

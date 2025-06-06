@@ -1,0 +1,104 @@
+//index.ejs
+
+<!-- <header>
+        <nav>
+
+        </nav>
+    </header> -->
+    <!-- <main>
+        <div class="movie-list">
+            <% movieData.forEach((movie)=>{ %>
+                <div class="movie-container card">
+                    <div class="movie-img">
+                        <img src="/img/<%= movie.image %>" alt="Poster of <%= movie.title %>">
+                    </div>
+                    <div class="movie-overview home-page">
+                        <h5>⭐ <%= movie.rating %></h5>
+                        <a href="./movie/<%= movie.id %>"><h4><%= movie.title %></h4></a>
+                        <h5><%= movie.genre.split(",")[0] %> | <%= movie.year %></h5>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </main> -->
+    <!-- <footer>
+
+    </footer> -->
+
+
+//details.ejs
+
+    <main>
+        <div class="detail-container card">
+            <section class="hero">
+                <div class="poster">
+                    <img src="<%= data.Poster %>" alt="Poster of <%= data.Title %>">
+                </div>
+                <div class="movie-overview detail-page">
+                    <h1><%= data.Title %> (<%= data.Year %>)</h1>
+                    <div class="movie-rating">
+                        <span>⭐ <%= data.imdbRating %></span>
+                        <% if(data.Rated === "R") { %>
+                            <span><%= data.Rated %> Rated | <%= data.Runtime %></span>
+                        <% }else{ %>
+                            <span><%= data.Rated %> | <%= data.Runtime %></span>
+                        <% } %>
+                    </div>
+                    <% const genres = data.Genre.split(","); %>                
+                    <h4> <%= genres.join(" |") %></h4>                   
+                </div>
+            </section>
+            <section class="movie-section">
+                <h3>Plot</h3>
+                <p><%= data.Plot %></p>
+            </section>
+            <hr>
+            <section class="movie-section">
+                <h3>Cast</h3>
+                <div class="meta-data-item">
+                    <span class="label">Director</span>
+                    <span class="value"><%= data.Director %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Writer</span>
+                    <span class="value"><%= data.Writer %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Actors</span>
+                    <span class="value"><%= data.Actors %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Language</span>
+                    <span class="value"><%= data.Language %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Country</span>
+                    <span class="value"><%= data.Country %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Awards</span>
+                    <span class="value"><%= data.Awards.split(".")[0] %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Box Office</span>
+                    <span class="value"><%= data.BoxOffice %></span>
+                </div>
+            </section>
+            <hr>
+            <section class="movie-section">
+                <h3>Ratings</h3>
+                <div class="meta-data-item">
+                    <span class="label">IMDB</span>
+                    <span class="value"><%= data.imdbRating %>/10</span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Rotten Tomatoes</span>
+                    <span class="value"><%= data.Ratings[1]?.Value || "N/A" %></span>
+                </div>
+                <div class="meta-data-item">
+                    <span class="label">Metacritic</span>
+                    <span class="value"><%= data.Ratings[2]?.Value || "N/A" %></span>
+                </div>
+            </section>
+        </div>
+    </main>
