@@ -2,7 +2,8 @@ const searchForm = document.querySelector('.search-form');
 const searchInput = document.querySelector('input[name=search]');
 const dispSection = document.querySelector('.display-container');
 const movieCardTemplate = document.querySelector('#dynamic-movie-template');
-const errorDiv = document.querySelector('.search-error-msg');
+const clientErrorDiv = document.querySelector('.search-error-msg');
+const otherErrorMsg = document.querySelector('.additional-error-msg');
 let errorFlag = false;
 
 const searchMovieAPI = async(query)=>{
@@ -11,23 +12,28 @@ const searchMovieAPI = async(query)=>{
             params: {
                 query: query
             }});
-        const data = response.data
-        dispMovies(data,query);
+        const result = response.data
+        dispMovies(result,query);
     } catch (error) {
-        console.error(error);
-        dispError()
+        throw error; //propagate error to the eventListener of form(where the error details are to be displayed)
     }   
 };
 
-const dispError = (msg)=>{
-    const emptySearch = document.createElement('p');
-    emptySearch.innerText = msg;
-    dispSection.append(emptySearch);
-}
+const dispError = (msg,field)=>{
+    if(field){ //client validation
+        clientErrorDiv.innerText = msg;
+    }else{ //server validation or empty search
+        otherErrorMsg.innerText = msg;
+    }
+};
 
-const dispMovies = (data,query)=>{
-    const movieList = data.data;
-    const URL = data.baseURL;
+const clearErrors = ()=>{
+    clientErrorDiv.innerHTML = otherErrorMsg.innerHTML = '';
+};
+
+const dispMovies = (res,query)=>{
+    const movieList = res.data;
+    const ImgURL = res.baseImgURL;
 
     dispSection.innerHTML = '';
     if(movieList.length === 0){
@@ -41,7 +47,7 @@ const dispMovies = (data,query)=>{
         movieLink.setAttribute('href',`/movie/${movie.id}`);
         if(movie.poster_path){
             const img = clonedMovieCard.querySelector('img');
-            img.setAttribute('src',`${URL}${movie.poster_path}`);
+            img.setAttribute('src',`${ImgURL}${movie.poster_path}`);
             img.setAttribute('alt',`${movie.title} Poster`);
         }
         movieTitle.innerText = movie.title;
@@ -53,44 +59,40 @@ const dispMovies = (data,query)=>{
 
 const searchValidation = (query)=>{
      if(!query){ //if empty search
-        errorDiv.innerText = 'Enter movie title';
-        return true;
+        return {'isValid': false, 'message': 'Enter movie title','field':'query'};
     }
-    else if(query.length<3){ //min length
-        errorDiv.innerText = 'Please enter at least 3 characters to search';
-        return true;
-    }
-    else if(query.length>18){ //max length
-        errorDiv.innerText = 'Please enter no more than 18 characters to search';
-        return true;
+    else if(query.length<3 || query.length>18){ //min and max length
+        return {'isValid': false, 'message': 'Movie title must be between 3 and 18 characters long','field':'query'};
     }
     else{
-        return false;
+        return {'isValid': true};
     }
-}
+};
 
 searchForm.addEventListener('submit', async (event)=>{
     event.preventDefault();
     const searchQuery = searchInput.value.trim();
-    errorFlag = searchValidation(searchQuery);
-    if(!errorFlag){
+    let { isValid, message, field }= searchValidation(searchQuery);
+    if(isValid){
+        clearErrors();
         try {
+            console.log('searching...');
             await searchMovieAPI(searchQuery);
-        } catch (error) {
-            
+        } catch (error) { //axios error
+            dispError(error.response.data.message,error.response.data.field);
         }
-    }  
+    }else{
+        errorFlag = true;
+        dispError(message,field);
+    } 
 });
 
 searchInput.addEventListener('input', async()=>{
     if(errorFlag){
         const searchQuery = searchInput.value.trim();
         if(searchQuery && searchQuery.length>=3 && searchQuery.length<=18){
-            errorDiv.innerText = '';
+            clearErrors();
             errorFlag = false;
         }
-    }
-    else if(searchInput.value === ''){
-
     }
 });

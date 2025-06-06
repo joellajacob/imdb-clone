@@ -15,7 +15,7 @@ function tmdbErrorMap(error){
             case 504:   //server-side issues
                         return appError('The movie database is experiencing server issues. Please try again later.',status,'TMDB_SERVER_ERROR',undefined);
             default:    //other tmbdAPI issues
-                        return appError(`An unexpected error from the movie database occurred: ${error.response.data.status_message} || Unknown Error`,status, 'TMDB_UNEXP_ERROR',undefined);
+                        return appError(`An unexpected error from the movie database occurred: ${error.response.data.status_message || 'Unknown Error'}`,status, 'TMDB_UNEXP_ERROR',undefined);
         }
 
     }else if(error.request){ //network error (req sent but no response)

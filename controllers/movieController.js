@@ -10,13 +10,16 @@ const movieController = {
     getPopularMovies: async(req,res,next)=>{
         try {
             const {data: popularMovies}  = await tmdbApi.get('/movie/popular');
-            res.render('index',{pageTitle: 'Popular Movies', movies: popularMovies.results, baseImgURL: envConfig.tmdbBaseURL});
+            res.render('index',{pageTitle: 'Popular Movies', movies: popularMovies.results, baseImgURL: envConfig.tmdbBaseImgURL});
         } catch (error) {
-            const tmbdError = tmdbErrorMap(error);
+            const tmdbError = tmdbErrorMap(error);
             next(tmdbError);
         }},
     getMovieDetails: async (req,res,next)=>{
         try {
+            if(!req.params.id){
+                throw appError('Movie ID does not exist',404,'INVALID_ID','id');
+            }
             //fetching from API
             const {data:movie} = await tmdbApi.get(`/movie/${req.params.id}`);
             const {data:reviews} = await tmdbApi.get(`/movie/${req.params.id}/reviews`);
@@ -51,25 +54,28 @@ const movieController = {
             const truncatedDir = listFormat(mainDirectors,'name',3);
             const truncatedWriters = listFormat(mainWriters,'name',3);
             res.render('movieDetails',{
-                pageTitle: movie.title, movie, mainCast, review: formattedReviews,releaseDate: formattedReleaseDate, voteAvg, langList: truncatedLang, genreList: truncatedGenre, prodList: truncatedProd, dirList: truncatedDir,writerList: truncatedWriters, trailerKey: trailer? trailer.key:null, baseImgURL: envConfig.tmdbBaseURL, baseYoutubeURL: envConfig.youtubeBaseURL
+                pageTitle: movie.title, movie, mainCast, review: formattedReviews,releaseDate: formattedReleaseDate, voteAvg, langList: truncatedLang, genreList: truncatedGenre, prodList: truncatedProd, dirList: truncatedDir,writerList: truncatedWriters, trailerKey: trailer? trailer.key:null, baseImgURL: envConfig.tmdbBaseImgURL, baseYoutubeURL: envConfig.youtubeBaseURL
             });
         } catch (error) {
+            if(error.field){
+                return next(error);
+            }
             const tmdbError = tmdbErrorMap(error);
             next(tmdbError);
         }},
     searchMovies: async (req,res,next)=>{
         try {
-            let query = '';
-            if(!typeof query === 'string'){
-                throw appError('Search query must be a string',400,'VALIDATION_ERROR','search');
-            }else{
-                query = req.query.query.trim();
+            let query = req.query.query;
+            if(typeof query !== 'string'){
+                throw appError('Search query must be a string',400,'INVALID_TYPE','query');
             }
+            query = query.trim();
             //validations
             if(!query){
-                throw appError('Search query missing',400,'VALIDATION-ERROR','search');
-            }else if(query.length<3 || query.length>18){
-                throw appError('Search query must be between 3 and 18 characters long',400,'VALIDATION-ERROR','search');
+                throw appError('Search query missing',400,'MISSING_QUERY','query');
+            }
+            if(query.length<3 || query.length>18){
+                throw appError('Search query must be between 3 and 18 characters long',400,'INVALID_LENGTH','query');
             }
             const response = await tmdbApi.get('/search/movie',{
                 params : {
@@ -77,16 +83,15 @@ const movieController = {
                 }});
             const data = response.data.results;
             res.json({
-                baseURL : envConfig.tmdbBaseURL,
-                data: data
+                    baseImgURL : envConfig.tmdbBaseImgURL,
+                    data: data
                 });
         } catch (error) {
-            if(error.code === 'VALIDATION-ERROR'){
-                next(error);
-            }else{
-                const tmbdError = tmdbErrorMap(error);
-                next(tmbdError);
+            if(error.field){
+                return next(error);
             }
+            const tmbdError = tmdbErrorMap(error);
+            next(tmbdError);
         }}
 };
 
