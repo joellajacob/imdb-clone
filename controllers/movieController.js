@@ -88,7 +88,7 @@ const movieController = {
                 });
         } catch (error) {
             if(error.field){
-                return next(error);
+                return next(error); //return --> to prevent exe of succeeding lines
             }
             const tmbdError = tmdbErrorMap(error);
             next(tmbdError);

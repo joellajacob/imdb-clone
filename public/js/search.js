@@ -1,9 +1,9 @@
 const searchForm = document.querySelector('.search-form');
-const searchInput = document.querySelector('input[name=search]');
+const searchInput = searchForm.querySelector('input[name=search]');
 const dispSection = document.querySelector('.display-container');
 const movieCardTemplate = document.querySelector('#dynamic-movie-template');
 const clientErrorDiv = document.querySelector('.search-error-msg');
-const otherErrorMsg = document.querySelector('.additional-error-msg');
+const otherErrorMsg = dispSection.querySelector('.additional-error-msg');
 let errorFlag = false;
 
 const searchMovieAPI = async(query)=>{
@@ -28,14 +28,17 @@ const dispError = (msg,field)=>{
 };
 
 const clearErrors = ()=>{
-    clientErrorDiv.innerHTML = otherErrorMsg.innerHTML = '';
+    clientErrorDiv.innerText = otherErrorMsg.innerText = '';
 };
 
 const dispMovies = (res,query)=>{
     const movieList = res.data;
     const ImgURL = res.baseImgURL;
 
-    dispSection.innerHTML = '';
+    //clear movie cards
+    const existingMovieCards = dispSection.querySelectorAll('a');
+    existingMovieCards.forEach(card => card.remove());
+
     if(movieList.length === 0){
         dispError(`No search results found for ${query}!`);        
     }else{

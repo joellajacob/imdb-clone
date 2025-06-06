@@ -1,4 +1,8 @@
-div{
+/* div{
+    border: 1px solid black;
+} */
+
+.display-container{
     border: 1px solid black;
 }
 
