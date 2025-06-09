@@ -9,3 +9,14 @@
 .full-list{
     display: none;
 }
+
+.filter-panel{
+    display:none;
+}
+
+.filter-panel-active{
+    display: block;
+    border: 1px solid black;
+}
+
+
