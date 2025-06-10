@@ -1,9 +1,10 @@
+import { dispError,clearErrors } from "./error.js";
+import { dispMovies } from "./dispMovies.js";
+
 const searchForm = document.querySelector('.search-form');
 const searchInput = searchForm.querySelector('input[name=search]');
 const dispSection = document.querySelector('.display-container');
 const movieCardTemplate = document.querySelector('#dynamic-movie-template');
-const clientErrorDiv = document.querySelector('.search-error-msg');
-const otherErrorMsg = dispSection.querySelector('.additional-error-msg');
 let errorFlag = false;
 
 const searchMovieAPI = async(query)=>{
@@ -13,51 +14,10 @@ const searchMovieAPI = async(query)=>{
                 query: query
             }});
         const result = response.data
-        dispMovies(result,query);
+        dispMovies(result,query,'search');
     } catch (error) {
         throw error; //propagate error to the eventListener of form(where the error details are to be displayed)
     }   
-};
-
-const dispError = (msg,field)=>{
-    if(field){ //client validation
-        clientErrorDiv.innerText = msg;
-    }else{ //server validation or empty search
-        otherErrorMsg.innerText = msg;
-    }
-};
-
-const clearErrors = ()=>{
-    clientErrorDiv.innerText = otherErrorMsg.innerText = '';
-};
-
-const dispMovies = (res,query)=>{
-    const movieList = res.data;
-    const ImgURL = res.baseImgURL;
-
-    //clear movie cards
-    const existingMovieCards = dispSection.querySelectorAll('a');
-    existingMovieCards.forEach(card => card.remove());
-
-    if(movieList.length === 0){
-        dispError(`No search results found for ${query}!`);        
-    }else{
-        movieList.forEach(movie =>{
-        const clonedMovieCard = movieCardTemplate.content.cloneNode(true);
-        const movieLink = clonedMovieCard.querySelector('a');
-        const movieTitle = clonedMovieCard.querySelector('.movie-title');
-        const movieDate = clonedMovieCard.querySelector('.movie-date');
-        movieLink.setAttribute('href',`/movie/${movie.id}`);
-        if(movie.poster_path){
-            const img = clonedMovieCard.querySelector('img');
-            img.setAttribute('src',`${ImgURL}${movie.poster_path}`);
-            img.setAttribute('alt',`${movie.title} Poster`);
-        }
-        movieTitle.innerText = movie.title;
-        movieDate.innerText = movie.release_date.split("-")[0];
-
-        dispSection.append(clonedMovieCard);
-    })}    
 };
 
 const searchValidation = (query)=>{

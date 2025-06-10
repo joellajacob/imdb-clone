@@ -5,21 +5,21 @@ function tmdbErrorMap(error){
         const status = error.response.status;
         switch (status){
             case 401:   //unauthorisation (bad API key --> my server's fault)
-                        return appError('Server Configuration Error: Unable to authenticate with the movie database. Please try again later.',500,'SERVER_CONFIG_ERROR',undefined); 
+                        return appError('Server Configuration Error: Unable to authenticate with the movie database. Please try again later.',500,'SERVER_CONFIG_ERROR','server'); 
             case 429:   //rate limiting
-                        return appError('Too many requests made to the movie database. Please try again later.',429,'RATE_LIMIT_ERROR',undefined);
+                        return appError('Too many requests made to the movie database. Please try again later.',429,'RATE_LIMIT_ERROR','server');
             case 500:
             case 501:
             case 502:
             case 503:
             case 504:   //server-side issues
-                        return appError('The movie database is experiencing server issues. Please try again later.',status,'TMDB_SERVER_ERROR',undefined);
+                        return appError('The movie database is experiencing server issues. Please try again later.',status,'TMDB_SERVER_ERROR','server');
             default:    //other tmbdAPI issues
-                        return appError(`An unexpected error from the movie database occurred: ${error.response.data.status_message || 'Unknown Error'}`,status, 'TMDB_UNEXP_ERROR',undefined);
+                        return appError(`An unexpected error from the movie database occurred: ${error.response.data.status_message || 'Unknown Error'}`,status, 'TMDB_UNEXP_ERROR','server');
         }
 
     }else if(error.request){ //network error (req sent but no response)
-        return appError('Error occurred while connecting to the movie database. Please try again later.', 503,'NETWORK_ERROR',undefined);
+        return appError('Error occurred while connecting to the movie database. Please try again later.', 503,'NETWORK_ERROR','network');
     }
 }
 

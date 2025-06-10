@@ -17,7 +17,7 @@
         </div>
     </header>
     <main>
-        <!-- filter (genre) -->
+        <!-- filter panel -->
         <div>
             <button class="filter-btn">Filters 
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -28,6 +28,7 @@
         <div class="filter-panel">
             <div class="close-container"></div>
             <div class="filter-groups">
+                <p class="filter-error-msg"></p>
                 <fieldset class="genre-filter-group">
                     <legend>Filter by Genre</legend>
                     <ul></ul>
@@ -74,7 +75,11 @@
     </main>  
     <!-- axios cdn -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script> 
-    <script src = "/js/genreFilter.js"></script>
-    <script src="/js/search.js"></script>
+    <!-- caching data -->
+    <script type="application/json" id="initial-popular-movie-data">
+        <%- JSON.stringify({data: movies, baseImgURL: baseImgURL}) %>
+    </script>
+    <script type="module" src = "/js/genreFilter.js"></script>
+    <script type="module" src="/js/search.js"></script>
 </body>
 </html>

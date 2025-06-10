@@ -1,3 +1,6 @@
+import {clearDispSection,dispMovies} from "./dispMovies.js";
+import { dispError, clearErrors} from "./error.js";
+
 const main = document.querySelector('main');
 const triggerButton = main.querySelector('.filter-btn');
 const filterPanel = main.querySelector('.filter-panel');
@@ -6,20 +9,40 @@ const filterButtonContainer = filterPanel.querySelector('.filter-buttons-contain
 const genreSection = filterPanel.querySelector('.genre-filter-group');
 const genreList = genreSection.querySelector('ul');
 const filterTemplate = main.querySelector('#filter-list-template');
+let initialPopularMovies = document.querySelector('#initial-popular-movie-data');
+let cachedPopularMovies = null;
 let selectedGenres = [];
 
-const searchMoviesWithFilter = async ()=>{
-    const withGenres = selectedGenres.join(',');
+const parsePopularMovieData = ()=>{
     try {
-        const response = await axios.get('/api/discover',{
+        cachedPopularMovies = JSON.parse(initialPopularMovies.textContent); //cached data
+    } catch (error) {
+        cachedPopularMovies = null;
+        
+    }
+}
+
+const searchMoviesWithFilter = async ()=>{       
+    try {
+        const withGenres = selectedGenres.join(',');
+        if(!withGenres){ //no filters selected
+            if(cachedPopularMovies){
+                dispMovies(cachedPopularMovies);
+            }else{
+                clearDispSection();
+                dispError('Error displaying the popular movies.Please refresh the page.','general');
+            }
+        }else{
+            const response = await axios.get('/api/discover',{
             params:{
                 with_genres: withGenres
-            }
-        });
-        const data = response.data;
-        console.log(data);
+            }});
+            const result = response.data;
+            // console.log(selectedGenres);
+            dispMovies(result,'','filter');
+        }
     } catch (error) {
-        
+        throw error;
     }
 }
 
@@ -31,6 +54,20 @@ const updateSelectedGenreList = (checked,genreId)=>{
     else{
         let index = selectedGenres.findIndex(genre => genre === genreId);
         selectedGenres.splice(index,1);
+    }
+}
+
+const clearSelectedGenreList = ()=>{
+    selectedGenres.forEach(genre=>{
+        let selectedListItem = genreList.querySelector(`input[value="${genre}"]`);
+        selectedListItem.checked = false;
+    })
+    selectedGenres = [];
+    if(cachedPopularMovies){
+        dispMovies(cachedPopularMovies);
+    }else{
+        clearDispSection();
+        dispError('Error displaying the popular movies.Please refresh the page.','general');
     }
 }
 
@@ -60,17 +97,22 @@ const populateFilterPanel = (filterList) =>{
     closeButton.addEventListener('click',toggleFilterPanel);
     closeButtonContainer.append(closeButton);
 
+    populateGenre(genreData);
+
     const clearFilterButton = document.createElement('button');
     clearFilterButton.innerText = 'Clear All Filters';
+    clearFilterButton.addEventListener('click',()=>{
+        clearErrors();
+        clearSelectedGenreList();
+    });
     const applyFilterButton = document.createElement('button');
     applyFilterButton.innerText = 'Apply';
     applyFilterButton.addEventListener('click',()=>{
+        clearErrors();
         toggleFilterPanel();
         searchMoviesWithFilter();
-    })
+    });
     filterButtonContainer.append(clearFilterButton,applyFilterButton);
-   
-    populateGenre(genreData);
 }
 
 const filterAPI = async () =>{ //called when page loads
@@ -78,8 +120,8 @@ const filterAPI = async () =>{ //called when page loads
         const response = await axios.get('/api/genres');
         const genreData = response.data;
         populateFilterPanel({genreData});
-        // console.log(genreData);
     } catch (error) {
+        dispError(error.response.data.message,'filter');
     }
 }
 
@@ -95,9 +137,9 @@ genreList.addEventListener('change',(event)=>{
     }else{ //deleting
         updateSelectedGenreList(false,itemCheckBox.value);
     }
-    console.log(selectedGenres);
 })
 
 
 //main
+parsePopularMovieData();
 filterAPI();

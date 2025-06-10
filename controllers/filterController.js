@@ -1,6 +1,7 @@
 import { tmdbApi } from "../services/tmdbService.js";
 import appError from "../utils/appError.js";
 import tmdbErrorMap from "../utils/tmdbErrorMapping.js";
+import envConfig from "../config/envConfig.js";
 
 const filterController = {
     getGenres: async (req,res,next)=>{
@@ -21,9 +22,13 @@ const filterController = {
                     sort_by: `popularity.desc`                              
                 }});
             const data = response.data;
-            res.json(data);
+            res.json({
+                    baseImgURL : envConfig.tmdbBaseImgURL,
+                    data: data.results
+                });
         } catch (error) {
-            next(error);
+            const tmdbError = tmdbErrorMap(error);
+            next(tmdbError);
         }
     }
 };
