@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@theme{
+    --color-imdb-yellow: #f5c518;
+    --color-imdb-dark: #0f0f0f;
+    --color-imdb-gray: #1a1a1a;
+}
+

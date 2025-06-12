@@ -2,6 +2,7 @@ import { tmdbApi } from "../services/tmdbService.js";
 import appError from "../utils/appError.js";
 import tmdbErrorMap from "../utils/tmdbErrorMapping.js";
 import envConfig from "../config/envConfig.js";
+// import data from "../data/mockfilter.js";
 
 const filterController = {
     getGenres: async (req,res,next)=>{

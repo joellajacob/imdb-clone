@@ -1,6 +1,5 @@
 import express from 'express';
 import envConfig from './config/envConfig.js';
-import { tmdbApi } from './services/tmdbService.js';
 import  { movieRouter } from './routes/movieRoutes.js';
 import { filterRouter } from './routes/filterRoutes.js';
 import movieController from './controllers/movieController.js';
@@ -30,7 +29,7 @@ app.use((err,req,res,next)=>{
     const httpStatus = err.status || 500;
     res.status(httpStatus).json({
         message: err.message || 'An unexpected server error occurred. Please try again later.',
-        field: err.field || undefined
+        field: err.field || 'server'
     })
 })
 

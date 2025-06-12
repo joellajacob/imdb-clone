@@ -12,13 +12,23 @@ const filterTemplate = main.querySelector('#filter-list-template');
 let initialPopularMovies = document.querySelector('#initial-popular-movie-data');
 let cachedPopularMovies = null;
 let selectedGenres = [];
+let selectedFilters = [];
+
+const updateSelectedFilterList = (checked,filterName)=>{
+     if(checked){
+        selectedFilters.push(filterName);
+    }
+    else{
+        let index = selectedFilters.findIndex(genre => genre === filterName);
+        selectedFilters.splice(index,1);
+    }
+}
 
 const parsePopularMovieData = ()=>{
     try {
         cachedPopularMovies = JSON.parse(initialPopularMovies.textContent); //cached data
     } catch (error) {
         cachedPopularMovies = null;
-        
     }
 }
 
@@ -27,10 +37,12 @@ const searchMoviesWithFilter = async ()=>{
         const withGenres = selectedGenres.join(',');
         if(!withGenres){ //no filters selected
             if(cachedPopularMovies){
-                dispMovies(cachedPopularMovies);
+                dispMovies(cachedPopularMovies,'Popular Movies');
             }else{
                 clearDispSection();
-                dispError('Error displaying the popular movies.Please refresh the page.','general');
+                let mainMsg = 'Error displaying the popular movies.Please refresh the page.';
+                let specificMsg = null;
+                dispError({mainMsg,specificMsg},'general');
             }
         }else{
             const response = await axios.get('/api/discover',{
@@ -38,8 +50,9 @@ const searchMoviesWithFilter = async ()=>{
                 with_genres: withGenres
             }});
             const result = response.data;
-            // console.log(selectedGenres);
-            dispMovies(result,'','filter');
+            console.log(selectedGenres);
+            console.log(selectedFilters);
+            dispMovies(result,`Search Results for ${selectedFilters.join(' \u00B7 ')}`,'filter');
         }
     } catch (error) {
         throw error;
@@ -64,10 +77,12 @@ const clearSelectedGenreList = ()=>{
     })
     selectedGenres = [];
     if(cachedPopularMovies){
-        dispMovies(cachedPopularMovies);
+        dispMovies(cachedPopularMovies,'Popular Movies');
     }else{
         clearDispSection();
-        dispError('Error displaying the popular movies.Please refresh the page.','general');
+        let mainMsg = 'Error displaying the popular movies.Please refresh the page.';
+        let specificMsg = null;
+        dispError({mainMsg,specificMsg},'general');
     }
 }
 
@@ -96,9 +111,7 @@ const populateFilterPanel = (filterList) =>{
     closeButton.setAttribute('aria-label','Close Filter Panel')
     closeButton.addEventListener('click',toggleFilterPanel);
     closeButtonContainer.append(closeButton);
-
     populateGenre(genreData);
-
     const clearFilterButton = document.createElement('button');
     clearFilterButton.innerText = 'Clear All Filters';
     clearFilterButton.addEventListener('click',()=>{
@@ -134,8 +147,10 @@ genreList.addEventListener('change',(event)=>{
     const itemCheckBox = listItem.querySelector('input');
     if(itemCheckBox.checked){ //inserting
         updateSelectedGenreList(true,itemCheckBox.value);
+        updateSelectedFilterList(true,itemCheckBox.name);
     }else{ //deleting
         updateSelectedGenreList(false,itemCheckBox.value);
+        updateSelectedFilterList(false,itemCheckBox.name);
     }
 })
 

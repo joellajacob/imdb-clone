@@ -4,6 +4,7 @@ import dateFormat from '../utils/dateFormatter.js';
 import appError from '../utils/appError.js';
 import tmdbErrorMap from '../utils/tmdbErrorMapping.js';
 import envConfig from '../config/envConfig.js';
+// import popularMovies from '../data/mockdata.js';
 
 
 const movieController = {
