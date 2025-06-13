@@ -4,14 +4,18 @@ import dateFormat from '../utils/dateFormatter.js';
 import appError from '../utils/appError.js';
 import tmdbErrorMap from '../utils/tmdbErrorMapping.js';
 import envConfig from '../config/envConfig.js';
-// import popularMovies from '../data/mockdata.js';
+import popularMovies from '../data/mockdata.js';
 
 
 const movieController = {
     getPopularMovies: async(req,res,next)=>{
         try {
-            const {data: popularMovies}  = await tmdbApi.get('/movie/popular');
-            res.render('index',{pageTitle: 'Popular Movies', movies: popularMovies.results, baseImgURL: envConfig.tmdbBaseImgURL});
+            // const {data: popularMovies}  = await tmdbApi.get('/movie/popular');
+            const formattedMovies = popularMovies.results.map(movie=>({
+                ...movie,
+                formattedRating: movie.vote_average.toFixed(1)
+            }))
+            res.render('index',{pageTitle: 'IMDB | HomePage', movies: formattedMovies, baseImgURL: envConfig.tmdbBaseImgURL});
         } catch (error) {
             const tmdbError = tmdbErrorMap(error);
             next(tmdbError);
@@ -83,9 +87,13 @@ const movieController = {
                     query: query
                 }});
             const data = response.data.results;
+            const formattedMovies = data.map(movie=>({
+                ...movie,
+                formattedRating: movie.vote_average.toFixed(1)
+            }))
             res.json({
                     baseImgURL : envConfig.tmdbBaseImgURL,
-                    data: data
+                    data: formattedMovies
                 });
         } catch (error) {
             if(error.field){

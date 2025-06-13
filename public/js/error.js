@@ -1,8 +1,8 @@
 const mainSection = document.querySelector('main');
 const searchErrorDiv = document.querySelector('.search-error-container');
 const filterErrorDiv = mainSection.querySelector('.filter-error-container')
-const emptyErrorDiv = mainSection.querySelector('.empty-result-container')
 const serverErrorDiv = mainSection.querySelector('.server-error-container');
+const serverMsgDiv = searchErrorDiv.querySelector('.server-msg-container');
 
 export const dispError = (msg,field)=>{
     if(field==='query'){ //client search validation
@@ -13,22 +13,17 @@ export const dispError = (msg,field)=>{
         filterErrorDiv.classList.remove('hidden');
     }
     else if(field === 'server' || field === 'network'){ //server validation
-        serverErrorDiv.innerText = msg;
+        const p = serverMsgDiv.querySelector('p');
+        p.innerText = msg;
         serverErrorDiv.classList.remove('hidden');    
-    }else{ //empty result
-        let {mainMsg,specificMsg} = msg;
-        const h3 = emptyErrorDiv.querySelector('h3');
-        const p = emptyErrorDiv.querySelector('p');
-        h3.innerText = mainMsg;
-        p.innerText = specificMsg;
-        emptyErrorDiv.classList.remove('hidden'); 
     }
 };
 
 export const clearErrors = ()=>{
+
     // filterErrorDiv.innerText = searchErrorDiv.innerText = otherErrorMsg.innerText = '';
     searchErrorDiv.classList.add('hidden');
-    filterErrorDiv.classList.add('hidden');
-    emptyErrorDiv.classList.add('hidden');
+    // filterErrorDiv.classList.add('hidden');
+    // emptyErrorDiv.classList.add('hidden');
     serverErrorDiv.classList.add('hidden');
 };

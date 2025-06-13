@@ -2,13 +2,13 @@ import { tmdbApi } from "../services/tmdbService.js";
 import appError from "../utils/appError.js";
 import tmdbErrorMap from "../utils/tmdbErrorMapping.js";
 import envConfig from "../config/envConfig.js";
-// import data from "../data/mockfilter.js";
+import data from "../data/mockfilter.js";
 
 const filterController = {
     getGenres: async (req,res,next)=>{
         try {
-            const response = await tmdbApi.get('/genre/movie/list');
-            const data = response.data;
+            // const response = await tmdbApi.get('/genre/movie/list');
+            // const data = response.data;
             res.json(data.genres);
         } catch (error) {
             const tmdbError = tmdbErrorMap(error);

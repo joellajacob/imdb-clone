@@ -2,13 +2,14 @@ import {clearDispSection,dispMovies} from "./dispMovies.js";
 import { dispError, clearErrors} from "./error.js";
 
 const main = document.querySelector('main');
+const pageTitle = document.querySelector('title');
 const triggerButton = main.querySelector('.filter-btn');
 const filterPanel = main.querySelector('.filter-panel');
 const closeButtonContainer = filterPanel.querySelector('.close-container');
 const filterButtonContainer = filterPanel.querySelector('.filter-buttons-container')
 const genreSection = filterPanel.querySelector('.genre-filter-group');
 const genreList = genreSection.querySelector('ul');
-const filterTemplate = main.querySelector('#filter-list-template');
+const filterTemplate = main.querySelector('#filter-item-template');
 let initialPopularMovies = document.querySelector('#initial-popular-movie-data');
 let cachedPopularMovies = null;
 let selectedGenres = [];
@@ -52,7 +53,8 @@ const searchMoviesWithFilter = async ()=>{
             const result = response.data;
             console.log(selectedGenres);
             console.log(selectedFilters);
-            dispMovies(result,`Search Results for ${selectedFilters.join(' \u00B7 ')}`,'filter');
+            pageTitle.innerText = 'IMDB | Search Results';
+            dispMovies(result,`Search Results for "${selectedFilters.join(' \u00B7 ')}"`,'filter');
         }
     } catch (error) {
         throw error;

@@ -3,8 +3,9 @@ import { dispMovies } from "./dispMovies.js";
 
 const searchForm = document.querySelector('.search-form');
 const searchInput = searchForm.querySelector('input[name=search]');
-// const dispSection = document.querySelector('.display-container');
-// const movieCardTemplate = document.querySelector('#dynamic-movie-template');
+const pageTitle = document.querySelector('title');
+const dispContainer = document.querySelector('.display-container');
+
 let errorFlag = false;
 
 const searchMovieAPI = async(query)=>{
@@ -13,8 +14,8 @@ const searchMovieAPI = async(query)=>{
             params: {
                 query: query
             }});
-        const result = response.data
-        dispMovies(result,`Search Results for ${query}`,'search');
+        const result = response.data;
+        dispMovies(result,`Search Results for "${query}"`,'search');
     } catch (error) {
         throw error; //propagate error to the eventListener of form(where the error details are to be displayed)
     }   
@@ -42,8 +43,11 @@ searchForm.addEventListener('submit', async (event)=>{
         searchInput.classList.add('focus:ring-2','focus:ring-imdb-yellow');
         try {
             console.log('searching...');
+            pageTitle.innerText = 'IMDB | Search Results';
             await searchMovieAPI(searchQuery);
         } catch (error) { //axios error
+            dispContainer.classList.add('hidden');
+            console.error(error);
             dispError(error.response.data.message,error.response.data.field);
             // searchInput.classList.remove('focus:ring-2','focus:ring-imdb-yellow');
             // searchInput.classList.add('ring-red-400','ring-2');

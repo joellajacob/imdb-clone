@@ -4,5 +4,77 @@
     --color-imdb-yellow: #f5c518;
     --color-imdb-dark: #0f0f0f;
     --color-imdb-gray: #1a1a1a;
+    --color-imdb-darker-gray: #090909;
+}
+
+@layer components{
+
+    .flex-container-between-center{
+        @apply flex items-center justify-between;
+    }
+
+    .container-title{
+        @apply text-3xl font-bold text-white tracking-wide;
+    }
+
+    .btn{
+        @apply  font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 cursor-pointer;
+    }
+
+    .display-container {
+        /* if adding loading spinner later on */
+        @apply relative; 
+    }
+
+    .empty-result-container{
+        @apply flex flex-col items-center justify-center gap-6
+             py-12 px-4 sm:px-6 md:px-8
+             bg-gray-900 rounded-xl border border-gray-800 shadow-xl
+             text-center;
+    }
+
+    .empty-additional-msg{
+        @apply text-sm text-gray-500;
+    }
+
+    .empty-specific-msg{
+        @apply text-base text-gray-400;
+
+    }
+
+    .movie-grid{
+        @apply grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+           gap-4 sm:gap-6;
+    }
+
+    .movie-card{
+        @apply block bg-gray-900 rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 no-underline;
+    }
+
+    .movie-poster{
+        @apply relative w-full aspect-[2/3] overflow-hidden bg-gray-50;
+    }
+
+    .movie-img{
+        @apply w-full h-full object-cover transition-transform duration-300 hover:scale-105;
+    }
+
+    .movie-img-placeholder{
+        @apply w-full h-full object-cover;
+
+    }
+
+    .movie-rating-badge{
+        @apply absolute top-2 right-2 bg-black/70 text-imdb-yellow px-2 py-0.5 rounded-full text-xs font-semibold backdrop-blur-sm flex items-center space-x-0.5;
+    }
+
+    .movie-title{
+        @apply text-base font-semibold text-white mb-1.5 leading-tight line-clamp-2 truncate;
+    }
+
+    .movie-year{
+        @apply text-sm text-gray-400 font-normal;
+    }
+
 }
 
