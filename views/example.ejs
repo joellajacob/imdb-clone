@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDb Filter Panel Draft</title>
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Using a darker background for the overall page to match IMDb aesthetic */
+            background-color: #121212; /* Darker gray background */
+        }
+        /* Custom Tailwind color for IMDb yellow */
+        .bg-imdb-yellow { background-color: #F5C518; }
+        .text-imdb-yellow { color: #F5C518; }
+        .focus\:ring-imdb-yellow:focus { --tw-ring-color: #F5C518; }
+        .hover\:bg-yellow-600:hover { background-color: #DAA800; } /* A slightly darker yellow for hover */
+    </style>
+</head>
+<body class="bg-gray-950 min-h-screen flex">
+
+    <!-- The Filter Panel -->
+    <!--
+        Initial state: fixed, covers full screen, translated X-axis fully to the right (hidden).
+        Transition: smooth transform.
+        Responsive: On large screens (lg), it becomes relative (part of flow), not translated, has a fixed width, flex-shrink-0 (doesn't shrink).
+        Background: Dark gray with slight opacity and blur for fixed overlay.
+        Padding, shadow, rounded corners.
+    -->
+    <div id="filter-panel"
+        class="fixed inset-0 z-50 transform translate-x-full
+               transition-transform duration-300 ease-in-out
+               bg-gray-900 bg-opacity-95 backdrop-blur-md overflow-y-auto
+               lg:relative lg:translate-x-0 lg:w-96 lg:flex-shrink-0 lg:ml-8
+               rounded-xl p-6 shadow-2xl border border-gray-800">
+
+        <!-- Close Button for Mobile/Overlay View -->
+        <!-- Only visible on smaller screens (below lg breakpoint) -->
+        <div class="close-container flex justify-end mb-6 lg:hidden">
+            <button id="close-filter-btn"
+                class="text-white text-3xl font-bold p-2 rounded-full hover:bg-gray-800 transition-colors">
+                &times; <!-- 'X' character -->
+            </button>
+        </div>
+
+        <!-- Main Filter Panel Title -->
+        <h2 class="text-3xl font-extrabold text-white mb-8 text-center
+                   border-b border-imdb-yellow pb-4">
+            Filters
+        </h2>
+
+        <!-- Genre Filter Group -->
+        <div class="genre-filter-group mb-8">
+            <h3 class="text-xl font-bold text-imdb-yellow mb-4 pb-2 border-b border-gray-700">
+                Genre
+            </h3>
+            <ul class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <!-- Example genre items - these would be dynamically populated by JS -->
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-28" name="Action" value="28"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-28" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Action</label>
+                </li>
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-35" name="Comedy" value="35"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-35" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Comedy</label>
+                </li>
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-80" name="Crime" value="80"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-80" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Crime</label>
+                </li>
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-18" name="Drama" value="18"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-18" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Drama</label>
+                </li>
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-27" name="Horror" value="27"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-27" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Horror</label>
+                </li>
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-10749" name="Romance" value="10749"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-10749" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Romance</label>
+                </li>
+                <li class="flex items-center">
+                    <input type="checkbox" id="genre-10751" name="Family" value="10751"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-10751" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Family</label>
+                </li>
+                 <li class="flex items-center">
+                    <input type="checkbox" id="genre-14" name="Fantasy" value="14"
+                           class="form-checkbox h-5 w-5 text-imdb-yellow rounded border-gray-600
+                                  focus:ring-imdb-yellow bg-gray-800 accent-imdb-yellow cursor-pointer">
+                    <label for="genre-14" class="ml-2 text-gray-300 text-sm cursor-pointer select-none">Fantasy</label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Year Filter Group (Placeholder for future implementation) -->
+        <div class="year-filter-group mb-8">
+            <h3 class="text-xl font-bold text-imdb-yellow mb-4 pb-2 border-b border-gray-700">
+                Year
+            </h3>
+            <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <input type="number" placeholder="Min Year"
+                       class="w-full sm:w-1/2 p-3 bg-gray-800 text-white border border-gray-700 rounded-lg
+                              focus:outline-none focus:ring-2 focus:ring-imdb-yellow">
+                <input type="number" placeholder="Max Year"
+                       class="w-full sm:w-1/2 p-3 bg-gray-800 text-white border border-gray-700 rounded-lg
+                              focus:outline-none focus:ring-2 focus:ring-imdb-yellow">
+            </div>
+            <p class="text-sm text-gray-500 mt-2">e.g., 2000 - 2024</p>
+        </div>
+
+        <!-- Rating Filter Group (Placeholder for future implementation) -->
+        <div class="rating-filter-group mb-8">
+            <h3 class="text-xl font-bold text-imdb-yellow mb-4 pb-2 border-b border-gray-700">
+                Minimum Rating
+            </h3>
+            <select class="w-full p-3 bg-gray-800 text-white border border-gray-700 rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-imdb-yellow">
+                <option value="">Select a rating</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+                <option value="5">5+</option>
+                <option value="6">6+</option>
+                <option value="7">7+</option>
+                <option value="8">8+</option>
+                <option value="9">9+</option>
+            </select>
+            <p class="text-sm text-gray-500 mt-2">e.g., Minimum 7+</p>
+        </div>
+
+        <!-- Global Filter Buttons Container -->
+        <div class="filter-buttons-container flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 mt-8 pt-6 border-t border-gray-700">
+            <button id="clear-all-filters-btn"
+                class="px-6 py-3 bg-gray-700 text-gray-300 font-semibold rounded-lg
+                       hover:bg-gray-600 transition-colors shadow-lg w-full sm:w-auto">
+                Clear All Filters
+            </button>
+            <button id="apply-filters-btn"
+                class="px-6 py-3 bg-imdb-yellow text-black font-semibold rounded-lg
+                       hover:bg-yellow-600 transition-colors shadow-lg w-full sm:w-auto">
+                Apply Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area (Dummy) and Button to Open Panel -->
+    <div class="flex flex-col items-center justify-center flex-grow p-8">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center">Your Awesome Movie App!</h1>
+        <p class="text-gray-400 text-lg mb-8 text-center max-w-xl">
+            Click the button below to open the IMDb-inspired filter panel.
+            Resize your browser to see its responsive behavior (overlay vs. sidebar).
+        </p>
+        <button id="open-filter-btn"
+            class="px-8 py-4 bg-imdb-yellow text-black font-bold text-lg rounded-xl
+                   hover:bg-yellow-600 transition-colors shadow-xl">
+            Open Filters
+        </button>
+    </div>
+
+    <script>
+        // JavaScript for toggling the filter panel visibility for CodePen demo
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterPanel = document.getElementById('filter-panel');
+            const openBtn = document.getElementById('open-filter-btn');
+            const closeBtn = document.getElementById('close-filter-btn');
+
+            // Function to manage panel visibility and responsiveness
+            const managePanelDisplay = () => {
+                if (window.innerWidth >= 1024) { // 'lg' breakpoint in Tailwind
+                    // On large screens, make it a static sidebar
+                    filterPanel.classList.remove('fixed', 'inset-0', 'bg-opacity-95', 'backdrop-blur-md', 'overflow-y-auto', 'transform', 'translate-x-full');
+                    filterPanel.classList.add('relative', 'translate-x-0', 'w-96', 'flex-shrink-0', 'ml-8');
+                    closeBtn.classList.add('hidden'); // Hide close button on sidebar
+                } else {
+                    // On smaller screens, make it a full-screen overlay
+                    filterPanel.classList.add('fixed', 'inset-0', 'bg-opacity-95', 'backdrop-blur-md', 'overflow-y-auto', 'transform');
+                    filterPanel.classList.remove('relative', 'translate-x-0', 'w-96', 'flex-shrink-0', 'ml-8');
+                    // Ensure it starts hidden (translate-x-full) unless opened by JS
+                    if (!filterPanel.classList.contains('translate-x-full')) {
+                         filterPanel.classList.add('translate-x-full'); // Start hidden on mobile
+                    }
+                    closeBtn.classList.remove('hidden'); // Show close button for overlay
+                }
+            };
+
+            // Attach event listeners for opening and closing the panel
+            openBtn.addEventListener('click', () => {
+                filterPanel.classList.remove('translate-x-full'); // Slide in
+            });
+
+            closeBtn.addEventListener('click', () => {
+                filterPanel.classList.add('translate-x-full'); // Slide out
+            });
+
+            // Initial check and re-check on window resize
+            window.addEventListener('resize', managePanelDisplay);
+            managePanelDisplay(); // Run once on load to set initial state
+        });
+    </script>
+</body>
+</html>

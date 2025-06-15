@@ -19,7 +19,10 @@ app.use('/api',filterRouter);
 
 
 //route handlers
-app.get('/',movieController.getPopularMovies);
+// app.get('/',movieController.getPopularMovies);
+app.get('/',(req,res)=>{
+    res.render('example.ejs');
+})
 
 app.use((err,req,res,next)=>{
     // 1.when working with API, json is better to send response
@@ -27,6 +30,9 @@ app.use((err,req,res,next)=>{
     // 3. err.message --> network error / error thrown from within code
     console.error(err.status,err.message,err.code);    
     const httpStatus = err.status || 500;
+    // if(err.request){
+
+    // }
     res.status(httpStatus).json({
         message: err.message || 'An unexpected server error occurred. Please try again later.',
         field: err.field || 'server'

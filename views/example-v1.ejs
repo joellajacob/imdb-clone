@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDb Filter Panel Draft</title>
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Tailwind color for IMDb yellow (amber-600 is a good match for reference) */
+        .bg-imdb-yellow { background-color: #F5C518; }
+        .text-imdb-yellow { color: #F5C518; }
+        .focus\:ring-imdb-yellow:focus { --tw-ring-color: #F5C518; }
+        .hover\:bg-yellow-600:hover { background-color: #DAA800; } /* A slightly darker yellow for hover */
+
+        /* Custom styling from the reference code for transitions and specific elements */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Darker gray background for the page */
+        }
+
+        /* Basic styling for the main content area for the demo */
+        .main-content-area {
+            flex-grow: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Styles for the filter panel slide-in effect */
+        #filter-panel {
+            /* Initially fixed to the right, hidden off-screen */
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            transform: translateX(100%); /* Hidden by default */
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Smooth slide + fade */
+            opacity: 0; /* Start hidden with no opacity */
+            z-index: 50; /* Ensure it's on top */
+
+            /* Visuals matching reference more closely */
+            background-color: #1a1a1a; /* Dark background for panel */
+            border-left: 1px solid #333; /* Subtle border on the left edge */
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.4); /* Shadow for depth */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column; /* Stack header, groups, buttons vertically */
+
+            /* Max width on larger screens, full width on smaller */
+            width: 100vw; /* Full width by default */
+            max-width: 400px; /* Limit max width on larger screens */
+        }
+        /* State when the panel is open */
+        #filter-panel.is-open {
+            transform: translateX(0); /* Slide into view */
+            opacity: 1; /* Fully visible */
+        }
+
+        /* Styling for fieldset and legend */
+        fieldset {
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: #2a2a2a; /* Slightly lighter background for groups */
+        }
+        legend {
+            color: #F5C518; /* IMDb Yellow for legend text */
+            font-weight: bold;
+            font-size: 1.125rem; /* Equivalent to text-lg */
+            padding: 0 0.5rem;
+            margin-left: -0.5rem; /* Pull legend slightly left to align with border */
+            background-color: #1a1a1a; /* Match panel background */
+            border-radius: 0.25rem;
+            transform: translateY(-50%); /* Position legend outside border */
+        }
+
+        /* Custom scrollbar styles for Webkit browsers (Chrome, Safari, Edge) */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 8px; /* width of the scrollbar */
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #2a2a2a; /* color of the tracking area */
+            border-radius: 10px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background-color: #555; /* color of the scroll thumb */
+            border-radius: 10px; /* roundness of the scroll thumb */
+            border: 2px solid #2a2a2a; /* creates padding around scroll thumb */
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background-color: #777; /* color of the scroll thumb on hover */
+        }
+
+        /* Genre Chip Styling from Reference */
+        .genre-chip {
+            transition: all 0.2s ease;
+            @apply px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-imdb-yellow transition-all;
+        }
+        .genre-chip:hover {
+            transform: translateY(-1px);
+        }
+        .genre-chip.selected {
+            /* Using direct Tailwind classes for selected state for consistency */
+            @apply bg-imdb-yellow text-black shadow-lg; /* Yellow background, black text */
+        }
+
+        /* Filter Error Styling from Reference */
+        .filter-error-container {
+            @apply bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded-md;
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Slider track and thumb styling (for Rating Filter) */
+        input[type="range"].slider::-webkit-slider-runnable-track {
+            background: #4a4a4a;
+            border-radius: 9999px; /* fully rounded */
+        }
+        input[type="range"].slider::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Override default */
+            width: 16px;
+            height: 16px;
+            background: #F5C518; /* IMDb yellow */
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -6px; /* Center thumb vertically */
+            box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.3); /* Yellow glow on focus */
+            transition: background 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        input[type="range"].slider:focus::-webkit-slider-thumb {
+            background: #DAA800; /* Darker yellow on focus */
+            box-shadow: 0 0 0 6px rgba(245, 197, 24, 0.5); /* Stronger glow on focus */
+        }
+        /* Firefox specific slider styles */
+        input[type="range"].slider::-moz-range-track {
+            background: #4a4a4a;
+            border-radius: 9999px;
+        }
+        input[type="range"].slider::-moz-range-thumb {
+            background: #F5C518;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.3);
+            transition: background 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        input[type="range"].slider:focus::-moz-range-thumb {
+            background: #DAA800;
+            box-shadow: 0 0 0 6px rgba(245, 197, 24, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-950 min-h-screen flex">
+
+    <!-- The Trigger Button to Open Filter Panel -->
+    <button id="open-filter-btn"
+        class="fixed top-4 right-4 z-40 px-6 py-3 bg-imdb-yellow text-black font-bold rounded-full shadow-lg
+               hover:bg-yellow-600 transition-colors flex items-center gap-2">
+        <span>Filters</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+        </svg>
+    </button>
+
+    <!-- Filter Panel Container -->
+    <div id="filter-panel" class="filter-panel">
+        <!-- Close Button -->
+        <div class="close-container flex items-center justify-between p-6 border-b border-gray-700">
+            <h2 class="text-xl font-semibold text-white">Filters</h2>
+            <button id="close-filter-btn" aria-label="Close Filter Panel"
+                class="text-gray-400 hover:text-white hover:bg-gray-700 rounded-full p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Filter Groups Container -->
+        <!-- This area will be scrollable if content overflows -->
+        <div class="filter-groups flex-1 overflow-y-auto p-6 space-y-6">
+            <!-- Filter Error Container (Initially Hidden) -->
+            <div id="filter-error-container"
+                 class="filter-error-container hidden">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm">Please select at least one genre</span>
+                </div>
+            </div>
+
+            <!-- Genre Filter Group -->
+            <fieldset class="genre-filter-group">
+                <legend class="text-imdb-yellow">Filter by Genre</legend>
+                <div class="space-y-3">
+                    <!-- Changed UL to DIV as per reference JS, added scrollability -->
+                    <div id="genreGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Genre chips will be populated here by JavaScript -->
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Rating Filter Group -->
+            <fieldset class="rating-filter-group">
+                <legend class="text-imdb-yellow">IMDb Rating</legend>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-sm text-gray-400">
+                        <span>Minimum Rating</span>
+                        <span id="ratingValue">7.0</span>
+                    </div>
+                    <input type="range" id="ratingSlider" min="1" max="10" step="0.1" value="7.0"
+                           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>1.0</span>
+                        <span>10.0</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Year Filter Group -->
+            <fieldset class="year-filter-group">
+                <legend class="text-imdb-yellow">Release Year</legend>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="yearFrom" class="block text-sm text-gray-400 mb-1">From</label>
+                            <input type="number" id="yearFrom" placeholder="1900" min="1900" max="2024"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-imdb-yellow focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="yearTo" class="block text-sm text-gray-400 mb-1">To</label>
+                            <input type="number" id="yearTo" placeholder="2024" min="1900" max="2024"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-imdb-yellow focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- More filter groups can be added here -->
+
+        </div> <!-- End filter-groups -->
+
+        <!-- Global Filter Buttons Container -->
+        <div class="filter-buttons-container border-t border-gray-700 p-6 space-y-3">
+            <button id="apply-filters-btn"
+                class="apply-filters w-full bg-imdb-yellow hover:bg-yellow-600 text-black font-semibold py-2.5 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-imdb-yellow focus:ring-offset-2 focus:ring-offset-gray-800">
+                Apply Filters
+            </button>
+            <button id="clear-all-filters-btn"
+                class="clear-filter w-full border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold py-2.5 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                Clear All Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area (Dummy for demo) -->
+    <div class="main-content-area text-white">
+        <h1 class="text-4xl font-bold mb-4 text-center">Your Movie Dashboard</h1>
+        <p class="text-gray-400 text-lg text-center max-w-xl">
+            Click the "Filters" button on the right to open the panel.
+            This panel is designed to slide in from the right on all screen sizes.
+        </p>
+    </div>
+
+    <!-- Demo Results Area (for visualizing applied filters) -->
+    <div class="mt-8 p-6 bg-gray-800 rounded-lg max-w-xl mx-auto">
+        <h3 class="text-white text-lg font-medium mb-4">Applied Filters:</h3>
+        <div id="appliedFilters" class="text-gray-400">
+            No filters applied
+        </div>
+    </div>
+
+    <script>
+        // Sample genres data (This would come from your API in a real app)
+        const genres = [
+            'Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime',
+            'Documentary', 'Drama', 'Family', 'Fantasy', 'Film-Noir', 'History',
+            'Horror', 'Music', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
+            'Sport', 'Thriller', 'War', 'Western'
+        ];
+
+        // Global state for filters
+        let selectedGenres = new Set();
+        let currentFilters = {
+            genres: [],
+            rating: 7.0, // Default rating
+            yearFrom: null,
+            yearTo: null
+        };
+
+        // --- DOM Elements ---
+        const filterPanel = document.getElementById('filter-panel');
+        const openFilterBtn = document.getElementById('open-filter-btn');
+        const closeFilterBtn = document.getElementById('close-filter-btn');
+        const clearAllFiltersBtn = document.getElementById('clear-all-filters-btn');
+        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+        const filterErrorContainer = document.getElementById('filter-error-container'); // Error message container
+        const filterErrorSpan = filterErrorContainer.querySelector('span'); // Span inside the error container
+
+        const genreGrid = document.getElementById('genreGrid'); // Where genre chips are populated
+        const ratingSlider = document.getElementById('ratingSlider');
+        const ratingValue = document.getElementById('ratingValue'); // Span for displaying rating value
+        const yearFromInput = document.getElementById('yearFrom');
+        const yearToInput = document.getElementById('yearTo');
+        const appliedFiltersDisplay = document.getElementById('appliedFilters'); // Demo area for applied filters
+
+
+        // --- Filter Panel Utility Functions ---
+
+        // Shows the filter panel and backdrop
+        function showFilterPanel() {
+            filterPanel.classList.add('is-open'); // Triggers slide-in and opacity
+            // No backdrop in this version, as it slides over content.
+            // If you want a backdrop, add a backdrop div and uncomment:
+            // backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent body scroll when panel is open
+        }
+
+        // Hides the filter panel and backdrop
+        function hideFilterPanel() {
+            filterPanel.classList.remove('is-open'); // Triggers slide-out and opacity
+            // If you have a backdrop, uncomment:
+            // backdrop.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Re-enable body scroll
+        }
+
+        // --- Error Display Functions ---
+        function showError(message) {
+            filterErrorContainer.classList.remove('hidden');
+            filterErrorSpan.textContent = message;
+        }
+
+        function hideError() {
+            filterErrorContainer.classList.add('hidden');
+        }
+
+
+        // --- Genre Filter Logic ---
+
+        // Initializes genre chips based on the 'genres' array
+        function initGenres() {
+            genreGrid.innerHTML = ''; // Clear existing
+            genres.forEach(genre => {
+                const chip = document.createElement('button');
+                chip.className = 'genre-chip'; // Apply base styling from CSS
+                chip.textContent = genre;
+                // Add 'selected' class if it's already in selectedGenres (e.g., on clear/apply logic)
+                if (selectedGenres.has(genre)) {
+                    chip.classList.add('selected');
+                }
+                chip.onclick = () => toggleGenre(genre, chip);
+                genreGrid.appendChild(chip);
+            });
+        }
+
+        // Toggles a genre's selected state and updates chip styling
+        function toggleGenre(genre, chipElement) {
+            if (selectedGenres.has(genre)) {
+                selectedGenres.delete(genre);
+                chipElement.classList.remove('selected');
+            } else {
+                selectedGenres.add(genre);
+                chipElement.classList.add('selected');
+            }
+            hideError(); // Hide any genre-related error when selection changes
+        }
+
+
+        // --- Rating Filter Logic ---
+
+        // Updates the displayed rating value next to the slider
+        function updateRatingDisplay() {
+            ratingValue.textContent = parseFloat(ratingSlider.value).toFixed(1);
+            hideError(); // Clear error on slider interaction
+        }
+
+
+        // --- Global Filter Actions ---
+
+        // Gathers all current filter selections and simulates applying them
+        function applyFilters() {
+            // --- Client-side validation before applying ---
+            if (selectedGenres.size === 0 && !yearFromInput.value && !yearToInput.value && parseFloat(ratingSlider.value) === 1.0) {
+                 // Example: Require at least one filter or non-default rating
+                 showError('Please select at least one filter criterion (genre, year, or change rating).');
+                 return;
+            }
+            if (selectedGenres.size === 0) {
+                showError('Please select at least one genre');
+                return;
+            }
+            
+            // Year validation (simple example)
+            const yearFrom = yearFromInput.value ? parseInt(yearFromInput.value) : null;
+            const yearTo = yearToInput.value ? parseInt(yearToInput.value) : null;
+            if (yearFrom && yearTo && yearFrom > yearTo) {
+                showError('Min Year cannot be greater than Max Year.');
+                return;
+            }
+
+
+            hideError(); // Hide any lingering errors
+
+            // Update the global 'currentFilters' state
+            currentFilters = {
+                genres: Array.from(selectedGenres),
+                rating: parseFloat(ratingSlider.value),
+                yearFrom: yearFrom,
+                yearTo: yearTo
+            };
+
+            // --- In a real app, you would now: ---
+            // 1. Close the filter panel: hideFilterPanel();
+            // 2. Call your API (e.g., from index.js: searchMoviesWithFilters(currentFilters))
+            // 3. Update the main movie display with results.
+
+            updateAppliedFiltersDisplay(); // For demo, update the text
+            alert('Filters Applied!\n' + JSON.stringify(currentFilters, null, 2)); // Demo alert
+            hideFilterPanel();
+        }
+
+        // Resets all filter selections to their default states
+        function clearFilters() {
+            selectedGenres.clear(); // Clear selected genres
+            initGenres(); // Re-render genre chips to reflect cleared state
+
+            ratingSlider.value = 1.0; // Reset rating slider to default
+            updateRatingDisplay(); // Update display for slider
+
+            yearFromInput.value = ''; // Clear year inputs
+            yearToInput.value = '';
+
+            hideError(); // Clear any error messages
+
+            // Reset the global 'currentFilters' state
+            currentFilters = {
+                genres: [],
+                rating: 1.0,
+                yearFrom: null,
+                yearTo: null
+            };
+
+            // --- In a real app, you would now: ---
+            // 1. Call your API to display popular/default movies
+            // 2. Clear previous search terms if any
+
+            updateAppliedFiltersDisplay(); // For demo, update the text
+            alert('All Filters Cleared! Showing default view.'); // Demo alert
+        }
+
+
+        // --- Demo Functions for Displaying Applied Filters ---
+        function updateAppliedFiltersDisplay() {
+            const filters = currentFilters;
+            let filterTextParts = [];
+
+            if (filters.genres && filters.genres.length > 0) {
+                filterTextParts.push(`Genres: ${filters.genres.join(', ')}`);
+            } else {
+                filterTextParts.push('Genres: All');
+            }
+
+            filterTextParts.push(`Min Rating: ${filters.rating.toFixed(1)}+`);
+
+            if (filters.yearFrom && filters.yearTo) {
+                filterTextParts.push(`Year: ${filters.yearFrom} - ${filters.yearTo}`);
+            } else if (filters.yearFrom) {
+                filterTextParts.push(`Year: ${filters.yearFrom}+`);
+            } else if (filters.yearTo) {
+                filterTextParts.push(`Year: Up to ${filters.yearTo}`);
+            } else {
+                filterTextParts.push('Year: All');
+            }
+
+            if (filterTextParts.length > 0 && !(filterTextParts.length === 3 && filterTextParts[0] === 'Genres: All' && filterTextParts[1] === 'Min Rating: 1.0+' && filterTextParts[2] === 'Year: All')) {
+                appliedFiltersDisplay.innerHTML = filterTextParts.join('<br>');
+            } else {
+                appliedFiltersDisplay.textContent = 'No filters applied';
+            }
+        }
+
+
+        // --- Event Listeners ---
+        openFilterBtn.addEventListener('click', showFilterPanel);
+        closeFilterBtn.addEventListener('click', hideFilterPanel);
+        applyFiltersBtn.addEventListener('click', applyFilters);
+        clearAllFiltersBtn.addEventListener('click', clearFilters);
+        ratingSlider.addEventListener('input', updateRatingDisplay);
+        yearFromInput.addEventListener('input', hideError); // Clear error on year input change
+        yearToInput.addEventListener('input', hideError);   // Clear error on year input change
+
+
+        // Global Escape key listener to close panel
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && filterPanel.classList.contains('is-open')) {
+                hideFilterPanel();
+            }
+        });
+
+        // --- Initial Setup on DOM Load ---
+        initGenres();           // Populate genre chips
+        updateRatingDisplay();  // Set initial rating text
+        updateAppliedFiltersDisplay(); // Set initial applied filters display
+    </script>
+</body>
+</html>

@@ -76,5 +76,9 @@
         @apply text-sm text-gray-400 font-normal;
     }
 
+    .filter-panel{
+        @apply fixed inset-y-0 right-0 w-screen md:w-1/4
+    }
+
 }
 

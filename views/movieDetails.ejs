@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include("./partials/common/head.ejs") %>
-<body>
-    <main>
+<body class="bg-imdb-darker-gray min-h-screen">
+    <%- include("./partials/common/navbar.ejs") %>
+    <main class="max-w-6xl mx-auto pt-24 px-4">
         <div>
             <section>
                 <% if(movie.poster_path){ %>

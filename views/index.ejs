@@ -18,8 +18,8 @@
                 </svg>
             </button>
         </div>
-        <!-- <%- include("./partials/homepage/filterPanel.ejs") %> -->
-        <!-- <%- include("./partials/homepage/filterItemTemplate.ejs") %> -->
+        <%- include("./partials/homepage/filterPanel.ejs") %>
+        <%- include("./partials/homepage/filterItemTemplate.ejs") %>
         <%- include("./partials/homepage/serverError.ejs") %>
         <!-- Display Section -->
         <div class="display-container">
@@ -39,7 +39,7 @@
     <script type="application/json" id="initial-popular-movie-data">
         <%- JSON.stringify({data: movies, baseImgURL: baseImgURL}) %>
     </script>
-    <script type="module" src = "/js/genreFilter.js"></script>
+    <!-- <script type="module" src = "/js/genreFilter.js"></script> -->
     <script type="module" src="/js/new/index.js"></script>
     <!-- <script type="module" src="/js/search.js"></script> -->
 </body>
